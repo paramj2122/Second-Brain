@@ -19,15 +19,15 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
   }
 
   return (
-    <li className="group border-b border-neutral-100 last:border-0">
+    <li className="group border-b border-neutral-800 last:border-0">
       <div className="flex items-start gap-3 py-2.5">
         <button
           aria-label={task.done ? 'Mark incomplete' : 'Mark complete'}
           onClick={() => void store.run(() => db.setTaskDone(task.id, !task.done))}
           className={`mt-0.5 size-[18px] shrink-0 rounded-[5px] border transition ${
             task.done
-              ? 'border-neutral-900 bg-neutral-900'
-              : 'border-neutral-300 hover:border-neutral-500'
+              ? 'border-blue-600 bg-blue-600'
+              : 'border-neutral-700 hover:border-neutral-500'
           }`}
         >
           {task.done && (
@@ -40,17 +40,17 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
         <button
           onClick={() => setOpen(!open)}
           className={`flex-1 text-left text-[15px] leading-6 ${
-            task.done ? 'text-neutral-400 line-through' : ''
+            task.done ? 'text-neutral-500 line-through' : 'text-neutral-100'
           }`}
         >
           {task.title}
           {task.note && !open && (
-            <span className="ml-2 text-xs text-neutral-400">{task.note}</span>
+            <span className="ml-2 text-xs text-neutral-500">{task.note}</span>
           )}
         </button>
 
         <span
-          className={`mt-1 shrink-0 text-xs ${overdue ? 'text-red-600' : 'text-neutral-400'}`}
+          className={`mt-1 shrink-0 text-xs ${overdue ? 'text-red-400' : 'text-neutral-500'}`}
         >
           {relativeLabel(task.due_date)}
         </span>
@@ -62,14 +62,14 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={saveEdits}
-            className="w-full rounded-md border border-neutral-200 px-2 py-1 text-sm outline-none focus:border-neutral-900"
+            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-blue-500"
           />
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
             onBlur={saveEdits}
             placeholder="Note"
-            className="w-full rounded-md border border-neutral-200 px-2 py-1 text-sm outline-none focus:border-neutral-900"
+            className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-blue-500"
           />
           <div className="flex flex-wrap items-center gap-1.5">
             <Chip onClick={() => reschedule(today())}>Today</Chip>
@@ -79,11 +79,11 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
               type="date"
               value={task.due_date ?? ''}
               onChange={(e) => reschedule(e.target.value || null)}
-              className="rounded-md border border-neutral-200 px-2 py-1 text-xs"
+              className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-100"
             />
             <button
               onClick={() => void store.run(() => db.deleteTask(task.id))}
-              className="ml-auto rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+              className="ml-auto rounded-md px-2 py-1 text-xs text-red-400 hover:bg-red-500/10"
             >
               Delete
             </button>
@@ -102,7 +102,7 @@ function Chip({ children, onClick }: { children: React.ReactNode; onClick: () =>
   return (
     <button
       onClick={onClick}
-      className="rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-600 hover:bg-neutral-50"
+      className="rounded-md border border-neutral-700 px-2 py-1 text-xs text-neutral-300 hover:bg-neutral-800"
     >
       {children}
     </button>

@@ -22,8 +22,8 @@ export default function Layout({
   return (
     <div className="mx-auto flex min-h-dvh max-w-5xl">
       {/* Desktop sidebar */}
-      <aside className="hidden w-52 shrink-0 flex-col border-r border-neutral-100 px-4 py-8 sm:flex">
-        <p className="px-2 text-sm font-semibold tracking-tight">Second Brain</p>
+      <aside className="hidden w-52 shrink-0 flex-col border-r border-neutral-800 px-4 py-8 sm:flex">
+        <p className="px-2 text-sm font-semibold tracking-tight text-neutral-50">Second Brain</p>
         <nav className="mt-6 space-y-0.5">
           {NAV.map((item) => (
             <button
@@ -31,8 +31,8 @@ export default function Layout({
               onClick={() => setView(item.id)}
               className={`flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm ${
                 view === item.id
-                  ? 'bg-neutral-100 font-medium text-neutral-900'
-                  : 'text-neutral-600 hover:bg-neutral-50'
+                  ? 'bg-blue-600/15 font-medium text-blue-400'
+                  : 'text-neutral-400 hover:bg-neutral-900'
               }`}
             >
               {item.label}
@@ -44,7 +44,7 @@ export default function Layout({
         </nav>
         <button
           onClick={() => void supabase.auth.signOut()}
-          className="mt-auto px-2 text-left text-xs text-neutral-400 hover:text-neutral-700"
+          className="mt-auto px-2 text-left text-xs text-neutral-500 hover:text-neutral-200"
         >
           Sign out
         </button>
@@ -53,13 +53,13 @@ export default function Layout({
       <main className="min-w-0 flex-1 px-5 pb-28 pt-8 sm:px-10 sm:pb-16">{children}</main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 flex border-t border-neutral-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
+      <nav className="fixed inset-x-0 bottom-0 flex border-t border-neutral-800 bg-neutral-950/90 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
         {NAV.map((item) => (
           <button
             key={item.id}
             onClick={() => setView(item.id)}
             className={`flex-1 py-3 text-sm ${
-              view === item.id ? 'font-medium text-neutral-900' : 'text-neutral-400'
+              view === item.id ? 'font-medium text-blue-400' : 'text-neutral-500'
             }`}
           >
             {item.label}

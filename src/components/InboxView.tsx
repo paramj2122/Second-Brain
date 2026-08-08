@@ -9,7 +9,7 @@ export default function InboxView({ store }: { store: Store }) {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Inbox</h1>
-        <p className="mt-0.5 text-sm text-neutral-500">
+        <p className="mt-0.5 text-sm text-neutral-400">
           {store.inbox.length === 0 ? 'Empty. Nice.' : `${store.inbox.length} to sort`}
         </p>
       </header>
@@ -30,8 +30,8 @@ function Item({ item, store }: { item: InboxItem; store: Store }) {
     void store.run(() => db.convertInboxItem(item, date))
 
   return (
-    <li className="rounded-xl border border-neutral-200 px-4 py-3">
-      <p className="whitespace-pre-wrap text-[15px] leading-6">{item.body}</p>
+    <li className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-4 py-3">
+      <p className="whitespace-pre-wrap text-[15px] leading-6 text-neutral-100">{item.body}</p>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         <button onClick={() => toTask(today())} className={chip}>
           → Task today
@@ -44,7 +44,7 @@ function Item({ item, store }: { item: InboxItem; store: Store }) {
         </button>
         <button
           onClick={() => void store.run(() => db.deleteInboxItem(item.id))}
-          className="ml-auto rounded-md px-2 py-1 text-xs text-neutral-400 hover:text-red-600"
+          className="ml-auto rounded-md px-2 py-1 text-xs text-neutral-500 hover:text-red-400"
         >
           Delete
         </button>
@@ -54,4 +54,4 @@ function Item({ item, store }: { item: InboxItem; store: Store }) {
 }
 
 const chip =
-  'rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-600 hover:bg-neutral-50'
+  'rounded-md border border-neutral-700 px-2 py-1 text-xs text-neutral-300 hover:bg-neutral-800'

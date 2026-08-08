@@ -25,42 +25,46 @@ export default function TasksView({ store }: { store: Store }) {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
-        <p className="mt-0.5 text-sm text-neutral-500">{open.length} open</p>
+        <p className="mt-0.5 text-sm text-neutral-400">{open.length} open</p>
       </header>
 
       {groups.map((g) => (
         <section key={g.label}>
-          <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-400">
+          <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
             {g.label}
           </h2>
-          {g.tasks.length === 0 && g.label === 'Overdue' ? (
-            <p className="py-1 text-sm text-neutral-300">Nothing.</p>
-          ) : (
-            <ul>
-              {g.tasks.map((task) => (
-                <TaskRow key={task.id} task={task} store={store} />
-              ))}
-            </ul>
-          )}
-          {g.label !== 'Overdue' && g.label !== 'Upcoming' && (
-            <AddTask store={store} dueDate={g.dueDate} />
-          )}
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 px-4">
+            {g.tasks.length === 0 && g.label === 'Overdue' ? (
+              <p className="py-3 text-sm text-neutral-600">Nothing.</p>
+            ) : (
+              <ul>
+                {g.tasks.map((task) => (
+                  <TaskRow key={task.id} task={task} store={store} />
+                ))}
+              </ul>
+            )}
+            {g.label !== 'Overdue' && g.label !== 'Upcoming' && (
+              <AddTask store={store} dueDate={g.dueDate} />
+            )}
+          </div>
         </section>
       ))}
 
       <section>
         <button
           onClick={() => setShowDone(!showDone)}
-          className="text-xs font-medium uppercase tracking-wide text-neutral-400 hover:text-neutral-700"
+          className="text-xs font-medium uppercase tracking-wide text-neutral-500 hover:text-neutral-200"
         >
           Completed ({done.length}) {showDone ? '−' : '+'}
         </button>
         {showDone && (
-          <ul className="mt-1">
-            {done.map((task) => (
-              <TaskRow key={task.id} task={task} store={store} />
-            ))}
-          </ul>
+          <div className="mt-2 rounded-2xl border border-neutral-800 bg-neutral-900/60 px-4">
+            <ul>
+              {done.map((task) => (
+                <TaskRow key={task.id} task={task} store={store} />
+              ))}
+            </ul>
+          </div>
         )}
       </section>
     </div>

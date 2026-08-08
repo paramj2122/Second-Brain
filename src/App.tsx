@@ -38,7 +38,7 @@ function Workspace() {
   return (
     <Layout view={view} setView={setView} inboxCount={store.inbox.length}>
       {store.error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {store.error}{' '}
           <button onClick={() => store.setError(null)} className="underline">
             dismiss
@@ -46,7 +46,7 @@ function Workspace() {
         </div>
       )}
       {store.loading ? (
-        <p className="text-sm text-neutral-400">Loading…</p>
+        <p className="text-sm text-neutral-500">Loading…</p>
       ) : view === 'today' ? (
         <TodayView store={store} />
       ) : view === 'inbox' ? (
@@ -61,12 +61,15 @@ function Workspace() {
 function NotConfigured() {
   return (
     <div className="mx-auto max-w-md px-6 py-16">
-      <h1 className="text-lg font-semibold">Supabase isn’t configured</h1>
-      <p className="mt-2 text-sm text-neutral-600">
-        Set <code className="rounded bg-neutral-100 px-1">VITE_SUPABASE_URL</code> and{' '}
-        <code className="rounded bg-neutral-100 px-1">VITE_SUPABASE_ANON_KEY</code> in{' '}
-        <code className="rounded bg-neutral-100 px-1">.env</code> locally, or in Netlify →
-        Site configuration → Environment variables. See the README.
+      <h1 className="text-lg font-semibold text-neutral-50">Supabase isn’t configured</h1>
+      <p className="mt-2 text-sm text-neutral-400">
+        Set <code className="rounded bg-neutral-800 px-1 text-neutral-200">VITE_SUPABASE_URL</code>{' '}
+        and{' '}
+        <code className="rounded bg-neutral-800 px-1 text-neutral-200">
+          VITE_SUPABASE_ANON_KEY
+        </code>{' '}
+        in <code className="rounded bg-neutral-800 px-1 text-neutral-200">.env</code> locally, or
+        in Netlify → Site configuration → Environment variables. See the README.
       </p>
     </div>
   )

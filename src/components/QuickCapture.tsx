@@ -31,9 +31,9 @@ export default function QuickCapture({ store }: { store: Store }) {
         }}
         rows={2}
         placeholder="What's on your mind?"
-        className="w-full resize-none rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[15px] outline-none placeholder:text-neutral-400 focus:border-neutral-900 focus:bg-white"
+        className="w-full resize-none rounded-xl border border-neutral-800 bg-neutral-900/60 px-4 py-3 text-[15px] text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-blue-500 focus:bg-neutral-900"
       />
-      <p className="mt-1 h-4 text-xs text-neutral-400">
+      <p className="mt-1 h-4 text-xs text-neutral-500">
         {flash ? 'Saved to Inbox.' : 'Enter to save · Shift+Enter for a new line'}
       </p>
     </form>

@@ -16,7 +16,7 @@ export default function TodayView({ store }: { store: Store }) {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">{longDate(t)}</h1>
-        <p className="mt-0.5 text-sm text-neutral-500">
+        <p className="mt-0.5 text-sm text-neutral-400">
           {openToday.length === 0 && overdue.length === 0
             ? 'Nothing left for today.'
             : `${openToday.length + overdue.length} to do`}
@@ -30,18 +30,20 @@ export default function TodayView({ store }: { store: Store }) {
       {overdue.length > 0 && <Rollover store={store} ids={overdue.map((x) => x.id)} />}
 
       <section>
-        <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-400">
+        <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
           Today
         </h2>
-        <ul>
-          {overdue.map((task) => (
-            <TaskRow key={task.id} task={task} store={store} />
-          ))}
-          {todays.map((task) => (
-            <TaskRow key={task.id} task={task} store={store} />
-          ))}
-        </ul>
-        <AddTask store={store} dueDate={t} />
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 px-4">
+          <ul>
+            {overdue.map((task) => (
+              <TaskRow key={task.id} task={task} store={store} />
+            ))}
+            {todays.map((task) => (
+              <TaskRow key={task.id} task={task} store={store} />
+            ))}
+          </ul>
+          <AddTask store={store} dueDate={t} />
+        </div>
       </section>
     </div>
   )
@@ -52,8 +54,8 @@ function Rollover({ store, ids }: { store: Store; ids: string[] }) {
   const move = (date: string | null) => void store.run(() => db.rescheduleTasks(ids, date))
 
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-      <p className="text-sm text-amber-900">
+    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+      <p className="text-sm text-amber-300">
         {ids.length} unfinished {ids.length === 1 ? 'task' : 'tasks'} from earlier.
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -75,4 +77,4 @@ function Rollover({ store, ids }: { store: Store; ids: string[] }) {
 }
 
 const btn =
-  'rounded-md border border-amber-300 bg-white px-2 py-1 text-xs text-amber-900 hover:bg-amber-100'
+  'rounded-md border border-amber-500/30 bg-neutral-900 px-2 py-1 text-xs text-amber-300 hover:bg-amber-500/10'

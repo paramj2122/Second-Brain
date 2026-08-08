@@ -24,12 +24,12 @@ export default function AddTask({
 
   return (
     <form onSubmit={submit} className="flex items-center gap-3 py-2.5">
-      <span className="size-[18px] shrink-0 rounded-[5px] border border-dashed border-neutral-300" />
+      <span className="size-[18px] shrink-0 rounded-[5px] border border-dashed border-neutral-700" />
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-neutral-400"
+        className="flex-1 bg-transparent text-[15px] text-neutral-100 outline-none placeholder:text-neutral-500"
       />
     </form>
   )
