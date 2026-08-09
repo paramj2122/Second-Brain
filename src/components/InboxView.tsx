@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { today, tomorrow } from '../lib/dates'
 import type { InboxItem } from '../lib/types'
 import type { Store } from '../lib/useStore'
+import DatePicker from './DatePicker'
 import QuickCapture from './QuickCapture'
 
 export default function InboxView({ store }: { store: Store }) {
@@ -25,7 +27,11 @@ export default function InboxView({ store }: { store: Store }) {
 }
 
 function Item({ item, store }: { item: InboxItem; store: Store }) {
-  const toTask = (date: string | null) => store.convertInboxItem(item, date)
+  const [picker, setPicker] = useState(false)
+  const toTask = (date: string | null) => {
+    store.convertInboxItem(item, date)
+    setPicker(false)
+  }
 
   return (
     <li className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-4 py-3">
@@ -40,6 +46,14 @@ function Item({ item, store }: { item: InboxItem; store: Store }) {
         <button onClick={() => toTask(null)} className={chip}>
           Someday
         </button>
+        <div className="relative">
+          <button onClick={() => setPicker(!picker)} className={chip}>
+            Pick a date ▾
+          </button>
+          {picker && (
+            <DatePicker value={null} onSelect={toTask} onClose={() => setPicker(false)} />
+          )}
+        </div>
         <button
           onClick={() => store.removeInboxItem(item.id)}
           className="ml-auto rounded-md px-2 py-1 text-xs text-neutral-500 hover:text-red-400"
