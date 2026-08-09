@@ -14,7 +14,7 @@ export default function TodayView({ store }: { store: Store }) {
 
   const overdue = store.tasks.filter((x) => !x.done && x.due_date !== null && x.due_date < t)
   const todays = store.tasks.filter((x) => x.due_date === t)
-  const tomorrows = store.tasks.filter((x) => x.due_date === tm && !x.done)
+  const tomorrows = store.tasks.filter((x) => x.due_date === tm)
   const openToday = todays.filter((x) => !x.done)
 
   /** Drop-target wiring shared by the Today and Tomorrow cards. */
