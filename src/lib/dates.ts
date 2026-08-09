@@ -38,6 +38,35 @@ export function shortDate(iso: string): string {
   })
 }
 
+export function startOfMonth(iso: string): string {
+  const [y, m] = iso.split('-').map(Number)
+  return toISODate(new Date(y, m - 1, 1))
+}
+
+export function addMonths(iso: string, n: number): string {
+  const [y, m] = iso.split('-').map(Number)
+  return toISODate(new Date(y, m - 1 + n, 1))
+}
+
+/** "August 2026" */
+export function monthLabel(iso: string): string {
+  const [y, m] = iso.split('-').map(Number)
+  return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+}
+
+/**
+ * Always 42 cells (6 weeks, Sunday-first) so the calendar never changes height
+ * as you page through months.
+ */
+export function monthGrid(monthISO: string): { iso: string; inMonth: boolean }[] {
+  const [y, m] = monthISO.split('-').map(Number)
+  const leadingBlanks = new Date(y, m - 1, 1).getDay()
+  return Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(y, m - 1, 1 - leadingBlanks + i)
+    return { iso: toISODate(d), inMonth: d.getMonth() === m - 1 }
+  })
+}
+
 export function relativeLabel(iso: string | null): string {
   if (!iso) return 'Someday'
   const t = today()

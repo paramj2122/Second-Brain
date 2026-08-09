@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import * as db from '../lib/db'
-import { today } from '../lib/dates'
 import type { Store } from '../lib/useStore'
 
 export default function Habits({ store }: { store: Store }) {
@@ -15,7 +13,7 @@ export default function Habits({ store }: { store: Store }) {
     const trimmed = name.trim()
     if (!trimmed) return
     setName('')
-    void store.run(() => db.createHabit(trimmed))
+    store.addHabit(trimmed)
   }
 
   return (
@@ -37,34 +35,48 @@ export default function Habits({ store }: { store: Store }) {
           <p className="mb-2 text-xs text-green-400">All done for today.</p>
         )}
 
-        <div className="flex flex-wrap gap-2">
+        <ul>
           {store.habits.map((h) => {
             const on = doneIds.has(h.id)
             return (
-              <span key={h.id} className="flex items-center">
+              <li
+                key={h.id}
+                className="flex items-center gap-3 border-b border-neutral-800 py-2 last:border-0"
+              >
                 <button
-                  onClick={() => void store.run(() => db.setHabitDone(h.id, today(), !on))}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                    on
-                      ? 'border-blue-600 bg-blue-600 text-white'
-                      : 'border-neutral-700 text-neutral-300 hover:border-neutral-500'
+                  aria-label={on ? `Mark ${h.name} incomplete` : `Mark ${h.name} complete`}
+                  onClick={() => store.toggleHabit(h.id, !on)}
+                  className={`size-[18px] shrink-0 rounded-[5px] border transition ${
+                    on ? 'border-blue-600 bg-blue-600' : 'border-neutral-700 hover:border-neutral-500'
                   }`}
                 >
-                  {h.name}
+                  {on && (
+                    <svg viewBox="0 0 16 16" className="size-full text-white" fill="none">
+                      <path
+                        d="M4 8.5l2.5 2.5L12 5.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
                 </button>
+                <span className={`flex-1 text-[15px] ${on ? 'text-neutral-400' : 'text-neutral-100'}`}>
+                  {h.name}
+                </span>
                 {editing && (
                   <button
                     aria-label={`Remove ${h.name}`}
-                    onClick={() => void store.run(() => db.deleteHabit(h.id))}
-                    className="-ml-1 px-1.5 text-neutral-500 hover:text-red-400"
+                    onClick={() => store.removeHabit(h.id)}
+                    className="px-1.5 text-neutral-500 hover:text-red-400"
                   >
                     ×
                   </button>
                 )}
-              </span>
+              </li>
             )
           })}
-        </div>
+        </ul>
 
         {editing && (
           <form onSubmit={add} className="mt-2">

@@ -1,4 +1,3 @@
-import * as db from '../lib/db'
 import { today, tomorrow } from '../lib/dates'
 import type { InboxItem } from '../lib/types'
 import type { Store } from '../lib/useStore'
@@ -26,8 +25,7 @@ export default function InboxView({ store }: { store: Store }) {
 }
 
 function Item({ item, store }: { item: InboxItem; store: Store }) {
-  const toTask = (date: string | null) =>
-    void store.run(() => db.convertInboxItem(item, date))
+  const toTask = (date: string | null) => store.convertInboxItem(item, date)
 
   return (
     <li className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-4 py-3">
@@ -43,7 +41,7 @@ function Item({ item, store }: { item: InboxItem; store: Store }) {
           Someday
         </button>
         <button
-          onClick={() => void store.run(() => db.deleteInboxItem(item.id))}
+          onClick={() => store.removeInboxItem(item.id)}
           className="ml-auto rounded-md px-2 py-1 text-xs text-neutral-500 hover:text-red-400"
         >
           Delete

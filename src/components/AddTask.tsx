@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import * as db from '../lib/db'
 import type { Store } from '../lib/useStore'
 
 /** One-line task entry. `dueDate` is whatever the current view means by "here". */
@@ -19,7 +18,7 @@ export default function AddTask({
     const trimmed = title.trim()
     if (!trimmed) return
     setTitle('')
-    void store.run(() => db.createTask(trimmed, dueDate))
+    store.addTask(trimmed, dueDate)
   }
 
   return (

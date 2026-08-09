@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import * as db from '../lib/db'
 import type { Store } from '../lib/useStore'
 
 /** Never asks where it goes — everything lands in the Inbox. */
@@ -14,7 +13,7 @@ export default function QuickCapture({ store }: { store: Store }) {
     setBody('')
     setFlash(true)
     setTimeout(() => setFlash(false), 1200)
-    void store.run(() => db.capture(trimmed))
+    store.captureItem(trimmed)
   }
 
   return (

@@ -3,10 +3,12 @@
 import { supabase } from './supabase'
 import type { Habit, HabitLog, InboxItem, Task } from './types'
 
+/** Reads the cached session — getUser() would hit the network on every write. */
 async function userId(): Promise<string> {
-  const { data } = await supabase.auth.getUser()
-  if (!data.user) throw new Error('Not signed in')
-  return data.user.id
+  const { data } = await supabase.auth.getSession()
+  const id = data.session?.user.id
+  if (!id) throw new Error('Not signed in')
+  return id
 }
 
 function unwrap<T>({ data, error }: { data: T | null; error: unknown }): T {
@@ -26,16 +28,13 @@ export async function listTasks(): Promise<Task[]> {
   )
 }
 
-export async function createTask(title: string, due_date: string | null): Promise<void> {
-  unwrap(await supabase.from('tasks').insert({ title, due_date, user_id: await userId() }))
+/** Takes the whole row so the caller can render it before this resolves. */
+export async function createTask(task: Pick<Task, 'id' | 'title' | 'due_date'>): Promise<void> {
+  unwrap(await supabase.from('tasks').insert({ ...task, user_id: await userId() }))
 }
 
 export async function updateTask(id: string, patch: Partial<Task>): Promise<void> {
   unwrap(await supabase.from('tasks').update(patch).eq('id', id))
-}
-
-export async function setTaskDone(id: string, done: boolean): Promise<void> {
-  await updateTask(id, { done, completed_at: done ? new Date().toISOString() : null })
 }
 
 export async function deleteTask(id: string): Promise<void> {
@@ -60,8 +59,8 @@ export async function listInbox(): Promise<InboxItem[]> {
   )
 }
 
-export async function capture(body: string): Promise<void> {
-  unwrap(await supabase.from('inbox_items').insert({ body, user_id: await userId() }))
+export async function capture(item: Pick<InboxItem, 'id' | 'body'>): Promise<void> {
+  unwrap(await supabase.from('inbox_items').insert({ ...item, user_id: await userId() }))
 }
 
 export async function archiveInboxItem(id: string): Promise<void> {
@@ -73,9 +72,12 @@ export async function deleteInboxItem(id: string): Promise<void> {
 }
 
 /** Inbox item → task, then archive the original so it stops showing up twice. */
-export async function convertInboxItem(item: InboxItem, due_date: string | null): Promise<void> {
-  await createTask(item.body, due_date)
-  await archiveInboxItem(item.id)
+export async function convertInboxItem(
+  itemId: string,
+  task: Pick<Task, 'id' | 'title' | 'due_date'>,
+): Promise<void> {
+  await createTask(task)
+  await archiveInboxItem(itemId)
 }
 
 // Habits ------------------------------------------------------------------
@@ -86,8 +88,8 @@ export async function listHabits(): Promise<Habit[]> {
   )
 }
 
-export async function createHabit(name: string): Promise<void> {
-  unwrap(await supabase.from('habits').insert({ name, user_id: await userId() }))
+export async function createHabit(habit: Pick<Habit, 'id' | 'name'>): Promise<void> {
+  unwrap(await supabase.from('habits').insert({ ...habit, user_id: await userId() }))
 }
 
 export async function deleteHabit(id: string): Promise<void> {
@@ -98,9 +100,13 @@ export async function listHabitLogs(day: string): Promise<HabitLog[]> {
   return unwrap(await supabase.from('habit_logs').select('id,habit_id,day').eq('day', day))
 }
 
-export async function setHabitDone(habit_id: string, day: string, done: boolean): Promise<void> {
+export async function setHabitDone(
+  log: HabitLog,
+  done: boolean,
+): Promise<void> {
+  const { id, habit_id, day } = log
   if (done) {
-    unwrap(await supabase.from('habit_logs').insert({ habit_id, day, user_id: await userId() }))
+    unwrap(await supabase.from('habit_logs').insert({ id, habit_id, day, user_id: await userId() }))
   } else {
     unwrap(await supabase.from('habit_logs').delete().eq('habit_id', habit_id).eq('day', day))
   }

@@ -1,11 +1,24 @@
 import { useState } from 'react'
-import * as db from '../lib/db'
 import { relativeLabel, today, tomorrow } from '../lib/dates'
 import type { Task } from '../lib/types'
 import type { Store } from '../lib/useStore'
+import DatePicker from './DatePicker'
 
-export default function TaskRow({ task, store }: { task: Task; store: Store }) {
+export default function TaskRow({
+  task,
+  store,
+  draggable = false,
+  onDragStart,
+  onDragEnd,
+}: {
+  task: Task
+  store: Store
+  draggable?: boolean
+  onDragStart?: () => void
+  onDragEnd?: () => void
+}) {
   const [open, setOpen] = useState(false)
+  const [picker, setPicker] = useState(false)
   const [title, setTitle] = useState(task.title)
   const [note, setNote] = useState(task.note ?? '')
 
@@ -14,25 +27,45 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
   function saveEdits() {
     const trimmed = title.trim()
     if (trimmed && (trimmed !== task.title || note !== (task.note ?? ''))) {
-      void store.run(() => db.updateTask(task.id, { title: trimmed, note: note || null }))
+      store.patchTask(task.id, { title: trimmed, note: note || null })
     }
   }
 
+  function reschedule(due_date: string | null) {
+    store.patchTask(task.id, { due_date })
+    setPicker(false)
+  }
+
   return (
-    <li className="group border-b border-neutral-800 last:border-0">
+    <li
+      draggable={draggable}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move'
+        // Firefox refuses to start a drag without payload.
+        e.dataTransfer.setData('text/plain', task.id)
+        onDragStart?.()
+      }}
+      onDragEnd={onDragEnd}
+      className={`group border-b border-neutral-800 last:border-0 ${
+        draggable ? 'cursor-grab active:cursor-grabbing' : ''
+      }`}
+    >
       <div className="flex items-start gap-3 py-2.5">
         <button
           aria-label={task.done ? 'Mark incomplete' : 'Mark complete'}
-          onClick={() => void store.run(() => db.setTaskDone(task.id, !task.done))}
+          onClick={() => store.toggleTask(task.id, !task.done)}
           className={`mt-0.5 size-[18px] shrink-0 rounded-[5px] border transition ${
-            task.done
-              ? 'border-blue-600 bg-blue-600'
-              : 'border-neutral-700 hover:border-neutral-500'
+            task.done ? 'border-blue-600 bg-blue-600' : 'border-neutral-700 hover:border-neutral-500'
           }`}
         >
           {task.done && (
             <svg viewBox="0 0 16 16" className="size-full text-white" fill="none">
-              <path d="M4 8.5l2.5 2.5L12 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path
+                d="M4 8.5l2.5 2.5L12 5.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           )}
         </button>
@@ -49,9 +82,7 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
           )}
         </button>
 
-        <span
-          className={`mt-1 shrink-0 text-xs ${overdue ? 'text-red-400' : 'text-neutral-500'}`}
-        >
+        <span className={`mt-1 shrink-0 text-xs ${overdue ? 'text-red-400' : 'text-neutral-500'}`}>
           {relativeLabel(task.due_date)}
         </span>
       </div>
@@ -75,14 +106,18 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
             <Chip onClick={() => reschedule(today())}>Today</Chip>
             <Chip onClick={() => reschedule(tomorrow())}>Tomorrow</Chip>
             <Chip onClick={() => reschedule(null)}>Someday</Chip>
-            <input
-              type="date"
-              value={task.due_date ?? ''}
-              onChange={(e) => reschedule(e.target.value || null)}
-              className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-neutral-100"
-            />
+            <div className="relative">
+              <Chip onClick={() => setPicker(!picker)}>Pick a date ▾</Chip>
+              {picker && (
+                <DatePicker
+                  value={task.due_date}
+                  onSelect={reschedule}
+                  onClose={() => setPicker(false)}
+                />
+              )}
+            </div>
             <button
-              onClick={() => void store.run(() => db.deleteTask(task.id))}
+              onClick={() => store.removeTask(task.id)}
               className="ml-auto rounded-md px-2 py-1 text-xs text-red-400 hover:bg-red-500/10"
             >
               Delete
@@ -92,10 +127,6 @@ export default function TaskRow({ task, store }: { task: Task; store: Store }) {
       )}
     </li>
   )
-
-  function reschedule(due_date: string | null) {
-    void store.run(() => db.updateTask(task.id, { due_date }))
-  }
 }
 
 function Chip({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
