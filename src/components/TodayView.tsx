@@ -3,7 +3,9 @@ import { addDays, longDate, today, tomorrow } from '../lib/dates'
 import type { Store } from '../lib/useStore'
 import AddTask from './AddTask'
 import Habits from './Habits'
+import MiniCalendar from './MiniCalendar'
 import QuickCapture from './QuickCapture'
+import Streak from './Streak'
 import TaskRow from './TaskRow'
 
 export default function TodayView({ store }: { store: Store }) {
@@ -50,8 +52,8 @@ export default function TodayView({ store }: { store: Store }) {
   }
 
   return (
-    <div className="space-y-8">
-      <header>
+    <div className="flex flex-col gap-8">
+      <header className="order-1">
         <h1 className="text-2xl font-semibold tracking-tight">{longDate(t)}</h1>
         <p className="mt-0.5 text-sm text-neutral-400">
           {openToday.length === 0 && overdue.length === 0
@@ -60,13 +62,21 @@ export default function TodayView({ store }: { store: Store }) {
         </p>
       </header>
 
-      <QuickCapture store={store} />
+      <div className="order-2 sm:order-3">
+        <QuickCapture store={store} />
+      </div>
 
-      <Habits store={store} />
+      <div className="order-3 sm:order-4">
+        <Habits store={store} />
+      </div>
 
-      {overdue.length > 0 && <Rollover store={store} ids={overdue.map((x) => x.id)} />}
+      {overdue.length > 0 && (
+        <div className="order-4 sm:order-5">
+          <Rollover store={store} ids={overdue.map((x) => x.id)} />
+        </div>
+      )}
 
-      <section>
+      <section className="order-5 sm:order-6">
         <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">Today</h2>
         <div {...zone('today', t)}>
           <ul>
@@ -93,7 +103,7 @@ export default function TodayView({ store }: { store: Store }) {
         </div>
       </section>
 
-      <section>
+      <section className="order-6 sm:order-7">
         <h2 className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
           Tomorrow
         </h2>
@@ -119,6 +129,11 @@ export default function TodayView({ store }: { store: Store }) {
           Drag a task between cards to move it. On a phone, tap it and use the date buttons.
         </p>
       </section>
+
+      <div className="order-7 sm:order-2 grid gap-4 sm:grid-cols-2">
+        <MiniCalendar />
+        <Streak tasks={store.tasks} />
+      </div>
     </div>
   )
 }
