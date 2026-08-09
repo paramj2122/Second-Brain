@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import MiniCalendar from './MiniCalendar'
 
 export type View = 'today' | 'inbox' | 'tasks'
 
@@ -20,7 +21,7 @@ export default function Layout({
   children: React.ReactNode
 }) {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-5xl">
+    <div className="mx-auto flex min-h-dvh max-w-6xl flex-col sm:flex-row">
       {/* Desktop sidebar */}
       <aside className="hidden w-52 shrink-0 flex-col border-r border-neutral-800 px-4 py-8 sm:flex">
         <p className="px-2 text-sm font-semibold tracking-tight text-neutral-50">Second Brain</p>
@@ -50,7 +51,12 @@ export default function Layout({
         </button>
       </aside>
 
-      <main className="min-w-0 flex-1 px-5 pb-28 pt-8 sm:px-10 sm:pb-16">{children}</main>
+      <main className="min-w-0 flex-1 px-5 pb-4 pt-8 sm:px-10 sm:pb-16">{children}</main>
+
+      {/* Calendar rail: stacked below content on mobile, a right sidebar from sm up */}
+      <aside className="shrink-0 border-t border-neutral-800 px-5 pb-28 pt-6 sm:w-56 sm:border-l sm:border-t-0 sm:px-4 sm:pb-16 sm:pt-8">
+        <MiniCalendar />
+      </aside>
 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 flex border-t border-neutral-800 bg-neutral-950/90 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
