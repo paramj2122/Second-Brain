@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import * as db from './db'
 import { today } from './dates'
+import { errorMessage, isAuthError } from './errors'
 import type { Habit, HabitLog, InboxItem, Task } from './types'
+
+/** 'failed' and 'expired' must never render as empty lists — that reads as data loss. */
+export type LoadStatus = 'loading' | 'ready' | 'failed' | 'expired'
 
 /**
  * Single source of truth for the whole app.
@@ -16,8 +20,13 @@ export function useStore() {
   const [inbox, setInbox] = useState<InboxItem[]>([])
   const [habits, setHabits] = useState<Habit[]>([])
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([])
-  const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState<LoadStatus>('loading')
   const [error, setError] = useState<string | null>(null)
+
+  /** Writes still in flight. A background refresh mid-write would clobber it. */
+  const pending = useRef(0)
+  /** Only the first load shows a spinner; later refreshes stay silent. */
+  const loadedOnce = useRef(false)
 
   const refresh = useCallback(async () => {
     try {
@@ -32,10 +41,12 @@ export function useStore() {
       setHabits(h)
       setHabitLogs(l)
       setError(null)
+      setStatus('ready')
+      loadedOnce.current = true
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setLoading(false)
+      setError(errorMessage(e))
+      // Keep whatever is already on screen rather than blanking it out.
+      if (!loadedOnce.current) setStatus(isAuthError(e) ? 'expired' : 'failed')
     }
   }, [])
 
@@ -43,13 +54,32 @@ export function useStore() {
     void refresh()
   }, [refresh])
 
+  // Re-sync when the tab comes back — catches a token that expired while away.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && pending.current === 0) void refresh()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('online', onVisible)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('online', onVisible)
+    }
+  }, [refresh])
+
   /** Fire-and-forget write; on failure, fall back to server truth. */
   const sync = useCallback(
     (fn: () => Promise<void>) => {
-      void fn().catch((e: unknown) => {
-        setError(e instanceof Error ? e.message : String(e))
-        void refresh()
-      })
+      pending.current += 1
+      void fn()
+        .catch((e: unknown) => {
+          setError(errorMessage(e))
+          if (isAuthError(e)) setStatus('expired')
+          void refresh()
+        })
+        .finally(() => {
+          pending.current -= 1
+        })
     },
     [refresh],
   )
@@ -186,7 +216,7 @@ export function useStore() {
     inbox,
     habits,
     habitLogs,
-    loading,
+    status,
     error,
     setError,
     refresh,
